@@ -44,6 +44,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IPokemonOwnershipService, PokemonOwnershipService>();
+builder.Services.AddScoped<ISqlFileService, SqlFileService>();
 
 // CORS
 builder.Services.AddCors(options =>

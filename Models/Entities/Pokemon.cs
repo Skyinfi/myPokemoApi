@@ -17,6 +17,9 @@ public class Pokemon
     public string Weight { get; set; } = string.Empty;
 
     public PokemonSprites Sprites { get; set; } = new();
+    
+    // 导航属性
+    public ICollection<UserPokemon> UserPokemons { get; set; } = new List<UserPokemon>();
 }
 
 public class PokemonSprites

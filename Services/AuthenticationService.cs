@@ -61,11 +61,11 @@ public class AuthenticationService : IAuthenticationService
                 Name = user.Name,
                 Language = user.Language,
                 FavouritePokemonId = user.FavouritePokemonId,
-                CaughtPokemonIds = user.CaughtPokemonIds.ToList(),
+                CaughtPokemonIds = user.UserPokemons.Select(up => up.PokemonId).ToList(),
                 CreatedAt = user.CreatedAt.ToString("o"),
                 UpdatedAt = user.UpdatedAt.ToString("o")
             },
-            AccessToken = accessToken,
+            AccessToken = accessToken,  
             RefreshToken = refreshToken
         };
     }
@@ -74,6 +74,7 @@ public class AuthenticationService : IAuthenticationService
     {
         // Find user by email
         var user = await _context.Users
+            .Include(u => u.UserPokemons)
             .FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (user == null || !_passwordService.VerifyPassword(request.Password, user.PasswordHash))
@@ -94,7 +95,7 @@ public class AuthenticationService : IAuthenticationService
                 Name = user.Name,
                 Language = user.Language,
                 FavouritePokemonId = user.FavouritePokemonId,
-                CaughtPokemonIds = user.CaughtPokemonIds.ToList(),
+                CaughtPokemonIds = user.UserPokemons.Select(up => up.PokemonId).ToList(),
                 CreatedAt = user.CreatedAt.ToString("o"),
                 UpdatedAt = user.UpdatedAt.ToString("o")
             },
@@ -114,6 +115,7 @@ public class AuthenticationService : IAuthenticationService
     public async Task<GetMeResponseDto> GetCurrentUserAsync(string userId)
     {
         var user = await _context.Users
+            .Include(u => u.UserPokemons)
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
@@ -130,7 +132,7 @@ public class AuthenticationService : IAuthenticationService
                 Name = user.Name,
                 Language = user.Language,
                 FavouritePokemonId = user.FavouritePokemonId,
-                CaughtPokemonIds = user.CaughtPokemonIds.ToList(),
+                CaughtPokemonIds = user.UserPokemons.Select(up => up.PokemonId).ToList(),
                 CreatedAt = user.CreatedAt.ToString("o"),
                 UpdatedAt = user.UpdatedAt.ToString("o")
             }

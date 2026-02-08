@@ -86,7 +86,6 @@ public static class DbSeeder
                 PasswordHash = passwordService.HashPassword("password123"), // Default test password
                 Language = Language.EN_US,
                 FavouritePokemonId = 25,
-                CaughtPokemonIds = new List<int> { 1, 25 },
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };

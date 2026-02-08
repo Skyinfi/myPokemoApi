@@ -27,5 +27,6 @@ public class User
 
     public int FavouritePokemonId { get; set; }
 
-    public ICollection<int> CaughtPokemonIds { get; set; } = new List<int>();
+    // 导航属性
+    public ICollection<UserPokemon> UserPokemons { get; set; } = new List<UserPokemon>();
 }

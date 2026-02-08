@@ -21,7 +21,6 @@ public class AuthenticationIntegrationTests : IClassFixture<WebApplicationFactor
     {
         _factory = factory.WithWebHostBuilder(builder =>
         {
-            builder.UseContentRoot(Directory.GetCurrentDirectory());
             builder.ConfigureServices(services =>
             {
                 // Remove the real database context
@@ -35,7 +34,7 @@ public class AuthenticationIntegrationTests : IClassFixture<WebApplicationFactor
                 // Add in-memory database for testing
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseInMemoryDatabase("TestDb");
+                    options.UseInMemoryDatabase("TestDb_" + Guid.NewGuid().ToString());
                 });
             });
         });

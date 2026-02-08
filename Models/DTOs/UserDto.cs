@@ -31,7 +31,7 @@ public class UserDto
             Name = user.Name,
             Language = user.Language,
             FavouritePokemonId = user.FavouritePokemonId,
-            CaughtPokemonIds = user.CaughtPokemonIds.ToList()
+            CaughtPokemonIds = user.UserPokemons.Select(up => up.PokemonId).ToList()
         };
     }
 }

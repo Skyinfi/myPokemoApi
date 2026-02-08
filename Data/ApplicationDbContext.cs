@@ -13,6 +13,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Pokemon> Pokemons { get; set; }
+    public DbSet<UserPokemon> UserPokemons { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,17 +28,6 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.PasswordHash).IsRequired();
             entity.Property(e => e.Language).HasConversion<string>();
-            
-            // Configure CaughtPokemonIds as JSON column
-            entity.Property(e => e.CaughtPokemonIds)
-                .HasConversion(
-                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                    v => JsonSerializer.Deserialize<ICollection<int>>(v, (JsonSerializerOptions?)null) ?? new List<int>())
-                .HasColumnType("jsonb")
-                .Metadata.SetValueComparer(new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<ICollection<int>>(
-                    (c1, c2) => c1!.SequenceEqual(c2!),
-                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                    c => c.ToList()));
 
             entity.HasIndex(e => e.Email).IsUnique();
         });
@@ -58,6 +48,45 @@ public class ApplicationDbContext : DbContext
                 sprites.Property(s => s.FrontDefault).HasMaxLength(500);
                 sprites.Property(s => s.FrontShiny).HasMaxLength(500);
             });
+        });
+
+        // Configure UserPokemon entity
+        modelBuilder.Entity<UserPokemon>(entity =>
+        {
+            // 复合主键
+            entity.HasKey(up => new { up.UserId, up.PokemonId });
+            
+            // 外键关系
+            entity.HasOne(up => up.User)
+                  .WithMany(u => u.UserPokemons)
+                  .HasForeignKey(up => up.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+                  
+            entity.HasOne(up => up.Pokemon)
+                  .WithMany(p => p.UserPokemons)
+                  .HasForeignKey(up => up.PokemonId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            
+            // 基本属性配置
+            entity.Property(up => up.CaughtAt).IsRequired();
+            entity.Property(up => up.Nickname).HasMaxLength(50);
+            entity.Property(up => up.IsFavorite).HasDefaultValue(false);
+            
+            // 游戏机制属性配置
+            entity.Property(up => up.Level).HasDefaultValue(1);
+            entity.Property(up => up.Experience).HasDefaultValue(0);
+            entity.Property(up => up.ExperienceToNextLevel).HasDefaultValue(100);
+            entity.Property(up => up.Health).HasDefaultValue(100);
+            entity.Property(up => up.MaxHealth).HasDefaultValue(100);
+            entity.Property(up => up.BattlesWon).HasDefaultValue(0);
+            entity.Property(up => up.BattlesLost).HasDefaultValue(0);
+            
+            // 索引
+            entity.HasIndex(up => up.UserId);
+            entity.HasIndex(up => up.PokemonId);
+            entity.HasIndex(up => up.CaughtAt);
+            entity.HasIndex(up => up.Level);
+            entity.HasIndex(up => up.LastBattleAt);
         });
     }
 }
